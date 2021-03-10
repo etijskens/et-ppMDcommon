@@ -12,7 +12,10 @@ def test_addNoise():
     y = np.array([0.0])
     noise = 1.0
     md.addNoise(x,y,noise)
+    assert np.all(0 < np.sqrt(x*x +y*y))
     assert np.all(np.sqrt(x*x +y*y) < noise)
+    print(x)
+    print(y)
 
 sqrt3 = np.sqrt(3)
 
@@ -21,14 +24,16 @@ def test_generateAtoms():
     xll, yll = 0.0, 0.0
     w = r0
     h = sqrt3
-    x, y = md.generateAtoms(xll, yll, w, h, r=r0)
+    box = md.Box(xll, yll, xll+w, yll+h)
+    x, y = md.generateAtoms(box, r=r0)
     assert len(x)==2
     x_expected = np.array([0.,0.5])
     y_expected = np.array([0.,0.5*sqrt3])
     assert np.all(x == x_expected)
     assert np.all(y == y_expected)
 
-    x, y = md.generateAtoms(xll+.1, yll+.1, w-.1, h-.1, r=r0)
+    box = md.Box(xll+.1, yll+.1, xll+w-.1, yll+h-.1)
+    x, y = md.generateAtoms(box, r=r0)
     # print(x)
     # print(y)
     assert len(x)==1
@@ -37,7 +42,8 @@ def test_generateAtoms():
     assert np.all(x == x_expected)
     assert np.all(y == y_expected)
 
-    x, y = md.generateAtoms(xll+.1, yll+.1, w, h, r=r0)
+    box = md.Box(xll+.1, yll+.1, xll+w+.1, yll+h+.1)
+    x, y = md.generateAtoms(box, r=r0)
     # print(x)
     # print(y)
     assert len(x)==2
@@ -46,7 +52,8 @@ def test_generateAtoms():
     assert np.all(x == x_expected)
     assert np.all(y == y_expected)
 
-    x, y = md.generateAtoms(xll, yll, 2*w, h, r=r0)
+    box = md.Box(xll, yll, xll + 2*w, yll + h)
+    x, y = md.generateAtoms(box, r=r0)
     assert len(x)==4
     x_expected = np.array([0.,0.5,1.,1.5])
     y_expected = np.array([0.,0.5*sqrt3,0.,0.5*sqrt3])
@@ -74,7 +81,7 @@ def test_Box():
 # that the source directory is on the path
 # ==============================================================================
 if __name__ == "__main__":
-    the_test_you_want_to_debug = test_generateAtoms
+    the_test_you_want_to_debug = test_addNoise
 
     print("__main__ running", the_test_you_want_to_debug)
     the_test_you_want_to_debug()

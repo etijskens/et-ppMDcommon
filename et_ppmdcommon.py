@@ -13,32 +13,6 @@ import math
 # some constants
 R0 = pow(2.,1/6) # equilibrium distance of (coefficientless) Lennard-Jones potential : V(r) = 1/r**12 - 1*r**6
 
-def cc2ucc(W):
-    """Transform Cartesian coordinates into hexagonal unit cell coordinates.
-
-    Primitive hexagonal unit cell:
-
-       (1/2,H)-(3/2,H)
-          /       /
-        /       /
-    (0,0)----(0,1)
-
-    :param np.array W: cartesian coordinates
-    :returns: np.array of unit cell coordinates
-
-    W' = T W
-    """
-    return np.matmul(T, W)
-
-def cc2uc_ij(W):
-    """Return indices of the unit cell containing the point W.
-
-    :param np.array W: Cartesian coordinates of point
-    :returns: tuple (i,j) of unit cell indices.
-    """
-    Wprime = cc2ucc(W)
-    return math.floor(Wprime[0]),math.floor(Wprime[1])
-
 class Box:
     def __init__(self, xll, yll, xur, yur):
         """
@@ -58,64 +32,53 @@ class Box:
         else:
             return False
 
+def generateAtoms(box, r=R0, noise=None):
+    """Generate atom positions on hexagonal closest packing with interatomic distance r.
 
-    def outside(self,x,y):
-        """test location of point (x,y)
+    Only the positions inside the rectangle with lower left corner (xll,yll)
+    and upper right corner (xll+wx,yll+wy) are returned. This function can be used to generate
+    atom coordinates when using domain decomposition.
 
-        :param float x: x-coordinate
-        :param float y: y-coordinate
-        :return: 0 if inside -1 if to the left, -2 if to the right, -3 if below, -4 if above
-        """
-        if x < self.xll:     # outside to the left
-            return -1
-        elif x >= self.xur:  # outside to the right
-            return -2
-        elif y < self.yll:   # outside below
-            return -3
-        elif y >= self.yur:  # outside above
-            return -4
-        else:
-            return 0            # inside
+    The lower and left boundary of the box are inclusive, the upper and right boundaries
+    of the box are excluded.
 
-def generateAtoms(xll, yll, wx, wy, r=R0, noise=None):
-    """generate atom positions on hexagonal closest packing
+    The more noise you add, the faster the atoms will move. The timestep must be chosen
+    such that the fastest atom does not move more than a few percentages of the interatomic
+    distance.
 
-    Only positions inside the rectangle with lower left corner (x0,y0)
-    and width wx and height wy are generated.
-
-    :param float xll: x-coordinate of lower left corner of the rectangle in which to generate atoms
-    :param float yll: y-coordinate of lower left corner of the rectangle in which to generate atoms
-    :param float wx: width of the rectangle
-    :param float wy: height of the rectanle
-    :param float r: edge length of hexagonal cell = interatomic distance
-    :param float noise: add a bit of noise to the atom positions. expressed as a fraction of the interatomic distance
-    :returns: two numpy arrays with resp. the x- and y-coordinates of the atoms
+    :param Box box: box in which the atoms must lie.
+    :param float r: edge length of hexagonal cell = interatomic distance (without noise)
+    :param float noise: add a bit of noise to the atom positions. expressed as a fraction of the interatomic distance.
+    :returns: two numpy arrays with resp. the x- and y-coordinates of the atoms.
     """
-    # unit cell rectangular centered
-    ucx = r
-    ucy = r*np.sqrt(3)
+    # Using a rectangular centered unit cell, whose sides are aligned with the box
+    a = r
+    b = r*np.sqrt(3)
 
-    xur = xll + wx
-    yur = yll + wy
+    # coordinates of the unit cells containing the lower left corner
+    # of the box and the upper right corner:
+    i0 = math.floor(box.xll/a)
+    i1 = math.ceil (box.xur/a)
+    j0 = math.floor(box.yll/b)
+    j1 = math.ceil (box.yur/b)
 
-    i0 = math.floor(xll/ucx)
-    i1 = math.ceil (xur/ucx)
-    j0 = math.floor(yll/ucy)
-    j1 = math.ceil (yur/ucy)
-
+    # offset of the central atom
     dxc = 0.5*r
     dyc = 0.5*np.sqrt(3.0)*r
 
-    box = Box(xll, yll, xll+wx, yll+wy)
+    # estimate the number of atoms in the box (conservative)
     nmax = 2*(i1-i0)*(j1-j0)
     x = np.empty((nmax,),dtype=float)
     y = np.empty((nmax,),dtype=float)
+    # in general nmax is a bit too large. Hence we count and clip the arrays before returning.
+
+    # generate
     n = -1
     for j in range(j0,j1):
-        yj = ucy*j
+        yj = j*b
         yc = yj + dyc
         for i in range(i0,i1):
-            xi = ucx*i
+            xi = i*a
 
             if box.inside(xi,yj):
                 n += 1
@@ -127,15 +90,22 @@ def generateAtoms(xll, yll, wx, wy, r=R0, noise=None):
                 n += 1
                 x[n] = xc
                 y[n] = yc
+
+    # clip the arrays
     x = x[:n+1]
     y = y[:n+1]
+
     if noise:
-        addNoise(noise, x, y)
+        addNoise(x, y, noise*r)
 
     return x, y
 
 
 def addNoise(x,y,noise):
+    """Displace (x,y) in a ramdom direction by a random amplitude in the interval [0,noise[.
+
+    The values of x and y are modified in place.
+    """
     n = len(x)
     theta = np.random.random(n)*(2*np.pi) # random angle in [0,2*pi[
     d     = np.random.random(n)*noise     # random amplitude in [0,noise[
