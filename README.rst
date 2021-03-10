@@ -2,16 +2,7 @@
 et_ppMDcommon
 =============
 
-
-
-<Enter a one-sentence description of this project here.>
-
+Common components for the Parallel Programming project assignement 2021
 
 * Free software: MIT license
-* Documentation: https://et-ppMDcommon.readthedocs.io.
 
-
-Features
---------
-
-* TODO
