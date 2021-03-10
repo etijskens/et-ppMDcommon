@@ -5,7 +5,7 @@ Package et_ppmdcommon
 
 Common components for the Parallel Programming project assignment
 """
-__version__ = "0.0.0"
+__version__ = "0.1.0"
 
 import numpy as np
 import math
