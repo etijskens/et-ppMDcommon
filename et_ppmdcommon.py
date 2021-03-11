@@ -5,7 +5,7 @@ Package et_ppmdcommon
 
 Common components for the Parallel Programming project assignment
 """
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 import numpy as np
 import math
@@ -13,6 +13,10 @@ import matplotlib.pyplot as plt
 
 # some constants
 R0 = pow(2.,1/6) # equilibrium distance of (coefficientless) Lennard-Jones potential : V(r) = 1/r**12 - 1*r**6
+# unit cell parameters of rectangular centered unit cell corresponding to R0
+A = R0
+B = R0*np.sqrt(3.0)
+
 
 #-------------------------------------------------------------------------------
 # Utilities for generating atoms in a box
