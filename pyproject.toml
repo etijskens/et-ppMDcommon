@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "et_ppMDcommon"
-version = "0.3.1"
+version = "0.3.2"
 description = "Tools for the Parallel Programming Course project 2021."
 authors = ["Bert Tijskens <engelbert.tijskens@uantwerpen.be>"]
 license = "MIT"

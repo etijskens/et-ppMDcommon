@@ -5,7 +5,7 @@ Package et_ppmdcommon
 
 Common components for the Parallel Programming project assignment
 """
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 import numpy as np
 import math
@@ -105,6 +105,11 @@ def generateAtoms(box, r=R0, noise=None):
     return x, y
 
 
+def seed(seed_value=None):
+    """Convenience method to set the seed of np.random random number generation."""
+    np.random.seed(seed_value)
+
+    
 def addNoise(x,y,noise):
     """Displace (x,y) in a random direction by a random amplitude in the interval [0,noise[.
 
