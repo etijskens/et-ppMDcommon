@@ -76,7 +76,7 @@ def test_Box():
     assert not box.inside(1, 1)
 
 
-def test_plotAtoms():
+def test_plotAtomsInBox():
     r0 = 1
     xll, yll = 0.0, 0.0
     w = r0
@@ -84,9 +84,9 @@ def test_plotAtoms():
     box = md.Box(xll, yll, xll+3*w, yll+3*h)
     x, y = md.generateAtoms(box, r=r0)
     md.figure()
-    md.plotAtoms(x, y)
-    md.plotAtoms(x, y, r=r0/2)
-    md.plotBox(box)
+    md.plotAtoms(x, y)          # dots
+    md.plotAtoms(x, y, r=r0/2)  # circles with atom radius
+    md.plotBox(box)             # containing box
     md.plt.show()
 
 # ==============================================================================
