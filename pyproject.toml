@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "et_ppMDcommon"
-version = "0.1.0"
+version = "0.3.0"
 description = "<Enter a one-sentence description of this project here.>"
 authors = ["Bert Tijskens <engelbert.tijskens@uantwerpen.be>"]
 license = "MIT"
@@ -16,6 +16,7 @@ keywords = ['packaging', 'poetry']
 python = "^3.7"
 numpy = "^1.20.1"
 et-micc-build = "^1.0.20"
+matplotlib = "^3.3.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.4.2"

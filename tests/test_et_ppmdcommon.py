@@ -5,6 +5,8 @@
 import numpy as np
 import et_ppmdcommon as md
 
+sqrt3 = np.sqrt(3)
+
 
 def test_addNoise():
     """Test for et_ppmdcommon.addNoise()."""
@@ -17,7 +19,6 @@ def test_addNoise():
     print(x)
     print(y)
 
-sqrt3 = np.sqrt(3)
 
 def test_generateAtoms():
     r0 = 1
@@ -74,6 +75,20 @@ def test_Box():
     assert not box.inside(0, 1)
     assert not box.inside(1, 1)
 
+
+def test_plotAtoms():
+    r0 = 1
+    xll, yll = 0.0, 0.0
+    w = r0
+    h = sqrt3
+    box = md.Box(xll, yll, xll+3*w, yll+3*h)
+    x, y = md.generateAtoms(box, r=r0)
+    md.figure()
+    md.plotAtoms(x, y)
+    md.plotAtoms(x, y, r=r0/2)
+    md.plotBox(box)
+    md.plt.show()
+
 # ==============================================================================
 # The code below is for debugging a particular test in eclipse/pydev.
 # (otherwise all tests are normally run with pytest)
@@ -81,7 +96,7 @@ def test_Box():
 # that the source directory is on the path
 # ==============================================================================
 if __name__ == "__main__":
-    the_test_you_want_to_debug = test_addNoise
+    the_test_you_want_to_debug = test_plotAtoms
 
     print("__main__ running", the_test_you_want_to_debug)
     the_test_you_want_to_debug()

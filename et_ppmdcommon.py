@@ -5,14 +5,18 @@ Package et_ppmdcommon
 
 Common components for the Parallel Programming project assignment
 """
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 # some constants
 R0 = pow(2.,1/6) # equilibrium distance of (coefficientless) Lennard-Jones potential : V(r) = 1/r**12 - 1*r**6
 
+#-------------------------------------------------------------------------------
+# Utilities for generating atoms in a box
+#-------------------------------------------------------------------------------
 class Box:
     def __init__(self, xll, yll, xur, yur):
         """
@@ -49,7 +53,7 @@ def generateAtoms(box, r=R0, noise=None):
     :param Box box: box in which the atoms must lie.
     :param float r: edge length of hexagonal cell = interatomic distance (without noise)
     :param float noise: add a bit of noise to the atom positions. expressed as a fraction of the interatomic distance.
-    :returns: two numpy arrays with resp. the x- and y-coordinates of the atoms.
+    :return: two numpy arrays with resp. the x- and y-coordinates of the atoms.
     """
     # Using a rectangular centered unit cell, whose sides are aligned with the box
     a = r
@@ -112,4 +116,45 @@ def addNoise(x,y,noise):
     x    += np.cos(theta)*d
     y    += np.sin(theta)*d
 
+
+#-------------------------------------------------------------------------------
+# Plotting utilities
+#-------------------------------------------------------------------------------
+def figure():
+    """Generate a matplotlib figure with equal aspect ratio."""
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.set_aspect('equal')
+    return fig, ax
+
+
+def plotAtoms(x,y,r=0.0):
+    """Plot the atoms on current matplotlib figure 
+
+    :param np.array x: x-coordinates
+    :param np.array y: y-coordinates
+    :param float r: atom radius, if 0.0 dots are plotted
+    """
+    if r:
+        theta = np.linspace(0,2*np.pi,36,endpoint=True)
+        xCircle = r*np.cos(theta)
+        yCircle = r*np.sin(theta)
+        for i in range(len(x)):
+            xCircle += x[i]
+            yCircle += y[i]
+            plt.plot(xCircle,yCircle)
+            xCircle -= x[i]
+            yCircle -= y[i]
+    else:
+        plt.plot(x,y,'o')
+
+def plotBox(box):
+    """Plot box on current figure
+    
+    :param Box box: box to plot 
+    """
+    plt.plot([box.xll, box.xur, box.xur, box.xll, box.xll]
+            ,[box.yll, box.yll, box.yur, box.yur, box.yll]
+            , '-'
+            )
 # eof
