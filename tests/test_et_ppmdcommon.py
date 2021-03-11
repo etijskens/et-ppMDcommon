@@ -82,12 +82,13 @@ def test_plotAtomsInBox():
     w = r0
     h = sqrt3
     box = md.Box(xll, yll, xll+3*w, yll+3*h)
-    x, y = md.generateAtoms(box, r=r0)
+    x, y = md.generateAtoms(box, r=r0, noise=.1)
     md.figure()
     md.plotAtoms(x, y)          # dots
     md.plotAtoms(x, y, r=r0/2)  # circles with atom radius
     md.plotBox(box)             # containing box
     md.plt.show()
+
 
 # ==============================================================================
 # The code below is for debugging a particular test in eclipse/pydev.
@@ -96,7 +97,7 @@ def test_plotAtomsInBox():
 # that the source directory is on the path
 # ==============================================================================
 if __name__ == "__main__":
-    the_test_you_want_to_debug = test_plotAtoms
+    the_test_you_want_to_debug = test_plotAtomsInBox
 
     print("__main__ running", the_test_you_want_to_debug)
     the_test_you_want_to_debug()

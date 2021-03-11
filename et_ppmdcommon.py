@@ -5,7 +5,7 @@ Package et_ppmdcommon
 
 Common components for the Parallel Programming project assignment
 """
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 import numpy as np
 import math
@@ -106,9 +106,13 @@ def generateAtoms(box, r=R0, noise=None):
 
 
 def addNoise(x,y,noise):
-    """Displace (x,y) in a ramdom direction by a random amplitude in the interval [0,noise[.
+    """Displace (x,y) in a random direction by a random amplitude in the interval [0,noise[.
 
     The values of x and y are modified in place.
+    Control the seed by calling np.random.seed(seed_value).
+
+    :param np.array x: array of x-coordinates
+    :param np.array y: array of y-coordinates
     """
     n = len(x)
     theta = np.random.random(n)*(2*np.pi) # random angle in [0,2*pi[

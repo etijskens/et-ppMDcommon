@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "et_ppMDcommon"
-version = "0.3.0"
-description = "<Enter a one-sentence description of this project here.>"
+version = "0.3.1"
+description = "Tools for the Parallel Programming Course project 2021."
 authors = ["Bert Tijskens <engelbert.tijskens@uantwerpen.be>"]
 license = "MIT"
 
@@ -15,7 +15,6 @@ keywords = ['packaging', 'poetry']
 [tool.poetry.dependencies]
 python = "^3.7"
 numpy = "^1.20.1"
-et-micc-build = "^1.0.20"
 matplotlib = "^3.3.4"
 
 [tool.poetry.dev-dependencies]
