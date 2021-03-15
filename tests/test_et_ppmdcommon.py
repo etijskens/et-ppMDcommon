@@ -82,10 +82,10 @@ def test_plotAtomsInBox():
     w = r0
     h = sqrt3
     box = md.Box(xll, yll, xll+3*w, yll+3*h)
-    x, y = md.generateAtoms(box, r=r0, noise=.1)
+    x, y = box.generateAtoms(r=r0, noise=.1)
     md.figure()
     md.plotAtoms(x, y)          # dots
-    md.plotAtoms(x, y, r=r0/2)  # circles with atom radius
+    md.plotAtoms(x, y, radius=r0/2)  # circles with atom radius
     md.plotBox(box)             # containing box
     md.plt.show()
 

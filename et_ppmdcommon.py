@@ -5,17 +5,26 @@ Package et_ppmdcommon
 
 Common components for the Parallel Programming project assignment
 """
-__version__ = "0.3.3"
+__version__ = "0.4.0"
 
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-# some constants
-R0 = pow(2.,1/6) # equilibrium distance of (coefficientless) Lennard-Jones potential : V(r) = 1/r**12 - 1*r**6
-# unit cell parameters of rectangular centered unit cell corresponding to R0
-A = R0
-B = R0*np.sqrt(3.0)
+
+class ClosestPacking2D:
+    def __init__(self,r):
+        """parameters of the rectangular centered unit cell for a 2D closest
+        packing of atoms witht radius r.
+
+        Every unit cell contains 2 atoms.
+        x   x
+          x
+        x   x
+        """
+        self.radius = r
+        self.uc_centered_a = r
+        self.uc_centered_b = r*np.sqrt(3.0)
 
 
 #-------------------------------------------------------------------------------
@@ -40,73 +49,69 @@ class Box:
         else:
             return False
 
-def generateAtoms(box, r=R0, noise=None):
-    """Generate atom positions on hexagonal closest packing with interatomic distance r.
 
-    Only the positions inside the rectangle with lower left corner (xll,yll)
-    and upper right corner (xll+wx,yll+wy) are returned. This function can be used to generate
-    atom coordinates when using domain decomposition.
+    def generateAtoms(self, r, noise=None):
+        """Generate atom positions on hexagonal closest packing with atomic radius r inside this box.
 
-    The lower and left boundary of the box are inclusive, the upper and right boundaries
-    of the box are excluded.
+        The lower and left boundary of the box are inclusive, the upper and right boundaries
+        of the box are excluded.
 
-    The more noise you add, the faster the atoms will move. The timestep must be chosen
-    such that the fastest atom does not move more than a few percentages of the interatomic
-    distance.
+        The more noise you add, the faster the atoms will move. The timestep must be chosen
+        such that the fastest atom does not move more than a few percentages of the interatomic
+        distance per timesteps.
 
-    :param Box box: box in which the atoms must lie.
-    :param float r: edge length of hexagonal cell = interatomic distance (without noise)
-    :param float noise: add a bit of noise to the atom positions. expressed as a fraction of the interatomic distance.
-    :return: two numpy arrays with resp. the x- and y-coordinates of the atoms.
-    """
-    # Using a rectangular centered unit cell, whose sides are aligned with the box
-    a = r
-    b = r*np.sqrt(3)
+        :param float r: atom radius = edge length of hexagonal cell = interatomic distance (without noise)
+        :param float noise: add random noise to the atom positions. expressed as a fraction of the interatomic distance r.
+        :return: two numpy arrays with resp. the x- and y-coordinates of the atoms.
+        """
+        # Using a rectangular centered unit cell, whose sides are aligned with the box
+        a = r
+        b = r*np.sqrt(3)
 
-    # coordinates of the unit cells containing the lower left corner
-    # of the box and the upper right corner:
-    i0 = math.floor(box.xll/a)
-    i1 = math.ceil (box.xur/a)
-    j0 = math.floor(box.yll/b)
-    j1 = math.ceil (box.yur/b)
+        # coordinates of the unit cells containing the lower left corner
+        # of the box and the upper right corner:
+        i0 = math.floor(self.xll/a)
+        i1 = math.ceil (self.xur/a)
+        j0 = math.floor(self.yll/b)
+        j1 = math.ceil (self.yur/b)
 
-    # offset of the central atom
-    dxc = 0.5*r
-    dyc = 0.5*np.sqrt(3.0)*r
+        # offset of the central atom
+        dxc = 0.5*r
+        dyc = 0.5*np.sqrt(3.0)*r
 
-    # estimate the number of atoms in the box (conservative)
-    nmax = 2*(i1-i0)*(j1-j0)
-    x = np.empty((nmax,),dtype=float)
-    y = np.empty((nmax,),dtype=float)
-    # in general nmax is a bit too large. Hence we count and clip the arrays before returning.
+        # estimate the number of atoms in the box (conservative)
+        nmax = 2*(i1-i0)*(j1-j0)
+        x = np.empty((nmax,),dtype=float)
+        y = np.empty((nmax,),dtype=float)
+        # in general nmax is a bit too large. Hence we count and clip the arrays before returning.
 
-    # generate
-    n = -1
-    for j in range(j0,j1):
-        yj = j*b
-        yc = yj + dyc
-        for i in range(i0,i1):
-            xi = i*a
+        # generate
+        n = -1
+        for j in range(j0,j1):
+            yj = j*b
+            yc = yj + dyc
+            for i in range(i0,i1):
+                xi = i*a
 
-            if box.inside(xi,yj):
-                n += 1
-                x[n] = xi
-                y[n] = yj
+                if self.inside(xi,yj):
+                    n += 1
+                    x[n] = xi
+                    y[n] = yj
 
-            xc = xi + dxc
-            if box.inside(xc,yc):
-                n += 1
-                x[n] = xc
-                y[n] = yc
+                xc = xi + dxc
+                if self.inside(xc,yc):
+                    n += 1
+                    x[n] = xc
+                    y[n] = yc
 
-    # clip the arrays
-    x = x[:n+1]
-    y = y[:n+1]
+        # clip the arrays
+        x = x[:n+1]
+        y = y[:n+1]
 
-    if noise:
-        addNoise(x, y, noise*r)
+        if noise:
+            addNoise(x, y, noise*r)
 
-    return x, y
+        return x, y
 
 
 def seed(seed_value=None):
@@ -141,17 +146,17 @@ def figure():
     return fig, ax
 
 
-def plotAtoms(x,y,r=0.0):
+def plotAtoms(x,y,radius=0.0):
     """Plot the atoms on current matplotlib figure 
 
     :param np.array x: x-coordinates
     :param np.array y: y-coordinates
-    :param float r: atom radius, if 0.0 dots are plotted
+    :param float radius: atom radius, if 0.0 dots are plotted
     """
-    if r:
+    if radius:
         theta = np.linspace(0,2*np.pi,36,endpoint=True)
-        xCircle = r*np.cos(theta)
-        yCircle = r*np.sin(theta)
+        xCircle = radius*np.cos(theta)
+        yCircle = radius*np.sin(theta)
         for i in range(len(x)):
             xCircle += x[i]
             yCircle += y[i]
