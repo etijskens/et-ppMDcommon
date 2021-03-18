@@ -60,7 +60,7 @@ class Box:
         such that the fastest atom does not move more than a few percentages of the interatomic
         distance per timesteps.
 
-        :param float r: atom radius = edge length of hexagonal cell = interatomic distance (without noise)
+        :param float r: edge length of hexagonal cell = interatomic distance (without noise) = 2 * atomic radius
         :param float noise: add random noise to the atom positions. expressed as a fraction of the interatomic distance r.
         :return: two numpy arrays with resp. the x- and y-coordinates of the atoms.
         """
